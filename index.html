@@ -329,16 +329,36 @@
             font-weight: 500;
         }
 
-        .output {
+        .output-table-container {
             margin-top: 20px;
-            padding: 15px;
+            overflow-x: auto;
+        }
+
+        .output-table {
+            width: 100%;
+            border-collapse: collapse;
             background: var(--output-bg);
             border: 1px solid var(--output-border);
             border-radius: 10px;
-            min-height: 120px;
-            font-size: 1em;
+            overflow: hidden;
+        }
+
+        .output-table th, .output-table td {
+            border: 1px solid var(--output-border);
+            padding: 12px;
+            text-align: center;
+            font-size: 0.95em;
             color: var(--text-color);
-            line-height: 1.6;
+        }
+
+        .output-table th {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            font-weight: 600;
+        }
+
+        .output-table tr.fade-in {
+            animation: fadeIn 0.5s ease forwards;
         }
 
         .table-container, .visual-table-container {
@@ -414,6 +434,11 @@
             background: transparent;
         }
 
+        .visual-table .hit-miss-row {
+            background: var(--queue-bg);
+            font-weight: 600;
+        }
+
         .loading {
             text-align: center;
             font-style: italic;
@@ -443,7 +468,7 @@
 </head>
 <body data-theme="light">
     <button class="theme-toggle light" id="themeToggle" onclick="toggleTheme()">
-        <img id="themeIcon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0iIzJjM2U1MCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgNC41YTYgNiAwIDEgMCA2IDYgNiA2IDAgMCAwLTYtNk0xMi4wMyAyYTEuOTcgMS45NyAwIDAgMC0yIDIgMS45NyAxLjk3IDAgMCAwIDIgMiAxLjk3IDEuOTcgMCAwIDAgMi0yIDEuOTcgMS45NyAwIDAgMC0yLTJaTTEyIDBhMSAxIDAgMCAwLTEgMXYyYTEgMSAwIDAgMCAxIDFIMTQuMDNhMSAxIDAgMCAwIDEtMXYyYTEgMSAwIDAgMCA1IDFIMTYuMDNhMSAxIDAgMCAwIDEtMXYyYTEgMSAwIDAgMCAxIDFINy41YTEgMSAwIDAgMC0xIDF2Mi4wM2ExIDEgMCAwIDAtMSAxSDkuMDNhMSAxIDAgMCAwIDEtMXYyLjAzYTEgMSAwIDAgMC0xIDFINy41YTEgMSAwIDAgMC0xIDF2Mi4wM2ExIDEgMCAwIDAtMSAxSDQuMDNhMSAxIDAgMCAwLTEtMVYyM2ExIDEgMCAwIDAgMS0xSDIuMDNhMSAxIDAgMCAwLTEtMXYtMi4wM2ExIDEgMCAwIDAgMS0xSDQuMDNhMSAxIDAgMCAwIDEtMVYxNi4wM2ExIDEgMCAwIDAtMS0xSDIuMDNhMSAxIDAgMCAwLTEtMXYtMi4wM2ExIDEgMCAwIDAgMS0xSDQuMDNhMSAxIDAgMCAwIDEtMVY5LjAzYTEgMSAwIDAgMC0xLTFIMi4wM2ExIDEgMCAwIDAtMS0xVjQuMDNhMSAxIDAgMCAwIDEtMUgyLjAzYTEgMSAwIDAgMC0xLTFWMS4wM2ExIDEgMCAwIDAgMS0xSDQuMDNhMSAxIDAgMCAwIDEtMVYxLjAzWiIvPjwvc3ZnPg==" alt="Toggle Theme">
+        <img id="themeIcon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0iIzJjM2U1MCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgNC41YTYgNiAwIDEgMCA2IDYgNiA2IDAgMCAwLTYtNk0xMi4wMyAyYTEuOTcgMS45NyAwIDAgMC0yIDIgMS45NyAxLjk3IDAgMCAwIDIgMiAxLjk3IDEuOTcgMCAwIDAgMi0yIDEuOTcgMS45NyAwIDAgMC0yLTJaTTEyIDBhMSAxIDAgMCAwLTEgMXYyYTEgMSAwIDAgMCA1IDFIMTQuMDNhMSAxIDAgMCAwIDEtMXYyYTEgMSAwIDAgMCA1IDFIMTYuMDNhMSAxIDAgMCAwIDEtMXYyYTEgMSAwIDAgMCAxIDFINy41YTEgMSAwIDAgMC0xIDF2Mi4wM2ExIDEgMCAwIDAtMSAxSDkuMDNhMSAxIDAgMCAwIDEtMXYyLjAzYTEgMSAwIDAgMC0xIDFINy41YTEgMSAwIDAgMC0xIDF2Mi4wM2ExIDEgMCAwIDAtMSAxSDQuMDNhMSAxIDAgMCAwLTEtMVYyM2ExIDEgMCAwIDAgMS0xSDIuMDNhMSAxIDAgMCAwLTEtMXYtMi4wM2ExIDEgMCAwIDAgMS0xSDQuMDNhMSAxIDAgMCAwIDEtMVYxNi4wM2ExIDEgMCAwIDAtMS0xSDIuMDNhMSAxIDAgMCAwLTEtMXYtMi4wM2ExIDEgMCAwIDAgMS0xSDQuMDNhMSAxIDAgMCAwIDEtMVY5LjAzYTEgMSAwIDAgMC0xLTFIMi4wM2ExIDEgMCAwIDAtMS0xVjQuMDNhMSAxIDAgMCAwIDEtMUgyLjAzYTEgMSAwIDAgMC0xLTFWMS4wM2ExIDEgMCAwIDAgMS0xSDQuMDNhMSAxIDAgMCAwIDEtMVYxLjAzWiIvPjwvc3ZnPg==" alt="Toggle Theme">
     </button>
     <h1>Page Replacement Algorithm Visualization</h1>
     <div class="container">
@@ -475,7 +500,18 @@
         </div>
         <div class="memory-frame" id="memoryFrame"></div>
         <div class="queue-display" id="fifoQueue">FIFO Queue: </div>
-        <div class="output" id="output"></div>
+        <div class="output-table-container">
+            <table class="output-table" id="outputTable">
+                <thead>
+                    <tr>
+                        <th>Reference String</th>
+                        <th>Hit/Miss</th>
+                        <th>Page Faults</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
         <div class="table-container">
             <table id="summaryTable">
                 <thead>
@@ -495,6 +531,9 @@
                     <tr id="visualReference"></tr>
                 </thead>
                 <tbody id="visualFrames"></tbody>
+                <tfoot>
+                    <tr id="hitMissRow"></tr>
+                </tfoot>
             </table>
         </div>
     </div>
@@ -521,7 +560,7 @@
             } else {
                 themeToggle.classList.remove('dark');
                 themeToggle.classList.add('light');
-                themeIcon.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0iIzJjM2U1MCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgNC41YTYgNiAwIDEgMCA2IDYgNiA2IDAgMCAwLTYtNk0xMi4wMyAyYTEuOTcgMS45NyAwIDAgMC0yIDIgMS45NyAxLjk3IDAgMCAwIDIgMiAxLjk3IDEuOTcgMCAwIDAgMi0yIDEuOTcgMS45NyAwIDAgMC0yLTJaTTEyIDBhMSAxIDAgMCAwLTEgMXYyYTEgMSAwIDAgMCAxIDFIMTQuMDNhMSAxIDAgMCAwIDEtMXYyYTEgMSAwIDAgMCA1IDFIMTYuMDNhMSAxIDAgMCAwIDEtMXYyYTEgMSAwIDAgMCAxIDFINy41YTEgMSAwIDAgMC0xIDF2Mi4wM2ExIDEgMCAwIDAtMSAxSDkuMDNhMSAxIDAgMCAwIDEtMXYyLjAzYTEgMSAwIDAgMC0xIDFINy41YTEgMSAwIDAgMC0xIDF2Mi4wM2ExIDEgMCAwIDAtMSAxSDQuMDNhMSAxIDAgMCAwLTEtMVYyM2ExIDEgMCAwIDAgMS0xSDIuMDNhMSAxIDAgMCAwLTEtMXYtMi4wM2ExIDEgMCAwIDAgMS0xSDQuMDNhMSAxIDAgMCAwIDEtMVYxNi4wM2ExIDEgMCAwIDAtMS0xSDIuMDNhMSAxIDAgMCAwLTEtMXYtMi4wM2ExIDEgMCAwIDAgMS0xSDQuMDNhMSAxIDAgMCAwIDEtMVY5LjAzYTEgMSAwIDAgMC0xLTFIMi4wM2ExIDEgMCAwIDAtMS0xVjQuMDNhMSAxIDAgMCAwIDEtMUgyLjAzYTEgMSAwIDAgMC0xLTFWMS4wM2ExIDEgMCAwIDAgMS0xSDQuMDNhMSAxIDAgMCAwIDEtMVYxLjAzWiIvPjwvc3ZnPg==';
+                themeIcon.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0iIzJjM2U1MCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgNC41YTYgNiAwIDEgMCA2IDYgNiA2IDAgMCAwLTYtNk0xMi4wMyAyYTEuOTcgMS45NyAwIDAgMC0yIDIgMS45NyAxLjk3IDAgMCAwIDIgMiAxLjk3IDEuOTcgMCAwIDAgMi0yIDEuOTcgMS45NyAwIDAgMC0yLTJaTTEyIDBhMSAxIDAgMCAwLTEgMXYyYTEgMSAwIDAgMCA1IDFIMTQuMDNhMSAxIDAgMCAwIDEtMXYyYTEgMSAwIDAgMCA1IDFIMTYuMDNhMSAxIDAgMCAwIDEtMXYyYTEgMSAwIDAgMCAxIDFINy41YTEgMSAwIDAgMC0xIDF2Mi4wM2ExIDEgMCAwIDAtMSAxSDkuMDNhMSAxIDAgMCAwIDEtMXYyLjAzYTEgMSAwIDAgMC0xIDFINy41YTEgMSAwIDAgMC0xIDF2Mi4wM2ExIDEgMCAwIDAtMSAxSDQuMDNhMSAxIDAgMCAwLTEtMVYyM2ExIDEgMCAwIDAgMS0xSDIuMDNhMSAxIDAgMCAwLTEtMXYtMi4wM2ExIDEgMCAwIDAgMS0xSDQuMDNhMSAxIDAgMCAwIDEtMVYxNi4wM2ExIDEgMCAwIDAtMS0xSDIuMDNhMSAxIDAgMCAwLTEtMXYtMi4wM2ExIDEgMCAwIDAgMS0xSDQuMDNhMSAxIDAgMCAwIDEtMVY5LjAzYTEgMSAwIDAgMC0xLTFIMi4wM2ExIDEgMCAwIDAtMS0xVjQuMDNhMSAxIDAgMCAwIDEtMUgyLjAzYTEgMSAwIDAgMC0xLTFWMS4wM2ExIDEgMCAwIDAgMS0xSDQuMDNhMSAxIDAgMCAwIDEtMVYxLjAzWiIvPjwvc3ZnPg==';
             }
         }
 
@@ -560,11 +599,12 @@
             simulationHistory = [];
             fifoQueue = [];
             lruTimestamps = new Array(frames).fill(0);
-            document.getElementById('output').innerHTML = '<p class="loading">Starting simulation...</p>';
+            document.getElementById('outputTable').querySelector('tbody').innerHTML = '<tr><td colspan="3" class="loading">Starting simulation...</td></tr>';
             document.getElementById('fifoQueue').innerHTML = 'FIFO Queue: ';
             document.getElementById('summaryTable').querySelector('tbody').innerHTML = '';
             document.getElementById('visualReference').innerHTML = '';
             document.getElementById('visualFrames').innerHTML = '';
+            document.getElementById('hitMissRow').innerHTML = '';
             updateMemoryDisplay();
             setTimeout(() => simulateStepByStep(algorithm), getSimulationDelay());
         }
@@ -584,6 +624,42 @@
             }
         }
 
+        function updateOutputTable() {
+            const tbody = document.getElementById('outputTable').querySelector('tbody');
+            const newRow = simulationHistory[simulationHistory.length - 1];
+            if (newRow) {
+                const rowHtml = `
+                    <tr class="${newRow.pageFault ? 'page-fault' : 'hit'} fade-in">
+                        <td>${newRow.page}</td>
+                        <td>${newRow.pageFault ? 'Miss' : 'Hit'}</td>
+                        <td>${pageFaults}</td>
+                    </tr>
+                `;
+                tbody.innerHTML = '';
+                simulationHistory.forEach(step => {
+                    const stepHtml = `
+                        <tr class="${step.pageFault ? 'page-fault' : 'hit'} fade-in">
+                            <td>${step.page}</td>
+                            <td>${step.pageFault ? 'Miss' : 'Hit'}</td>
+                            <td>${pageFaults}</td>
+                        </tr>
+                    `;
+                    tbody.insertAdjacentHTML('beforeend', stepHtml);
+                });
+            }
+            if (simulationHistory.length > 0 && currentStep >= referenceString.length) {
+                const totalSteps = simulationHistory.length;
+                const faultRate = (pageFaults / totalSteps * 100).toFixed(2);
+                const finalRow = `
+                    <tr class="fade-in">
+                        <td colspan="2"><strong>Total Page Fault Rate</strong></td>
+                        <td>${pageFaults}/${totalSteps} = ${faultRate}%</td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', finalRow);
+            }
+        }
+
         function updateSummaryTable() {
             const tbody = document.getElementById('summaryTable').querySelector('tbody');
             const newRow = simulationHistory[simulationHistory.length - 1];
@@ -598,16 +674,12 @@
                 `;
                 tbody.insertAdjacentHTML('beforeend', rowHtml);
             }
-            if (simulationHistory.length > 0 && currentStep >= referenceString.length) {
-                const totalSteps = simulationHistory.length;
-                const faultRate = (pageFaults / totalSteps * 100).toFixed(2);
-                document.getElementById('output').innerHTML += `<p>Page Fault Rate: ${pageFaults}/${totalSteps} = ${faultRate}%</p>`;
-            }
         }
 
         function updateVisualTable() {
             const visualReference = document.getElementById('visualReference');
             const visualFrames = document.getElementById('visualFrames');
+            const hitMissRow = document.getElementById('hitMissRow');
 
             // Update reference string row
             if (currentStep === 1) {
@@ -616,38 +688,47 @@
 
             // Update frame rows
             const frames = parseInt(document.getElementById('frames').value);
-            let frameRows = '';
-            let previousMemory = new Array(frames).fill(null);
+            let frameRows = new Array(frames).fill('');
 
-            for (let i = 0; i < frames; i++) {
-                let rowCells = '';
-                for (let step = 0; step < simulationHistory.length; step++) {
-                    const currentPage = simulationHistory[step].memory[i];
-                    const isHit = !simulationHistory[step].pageFault;
-                    const sameAsPrevious = currentPage === previousMemory[i];
+            for (let step = 0; step < simulationHistory.length; step++) {
+                const currentMemory = simulationHistory[step].memory;
+                const isHit = !simulationHistory[step].pageFault;
+
+                for (let i = 0; i < frames; i++) {
                     let cellContent = '';
-
-                    if (isHit || (sameAsPrevious && step > 0)) {
+                    if (isHit) {
                         cellContent = '<td class="hit-cell">-</td>';
                     } else {
-                        cellContent = `<td>${currentPage !== null ? currentPage : '-'}</td>`;
+                        cellContent = `<td>${currentMemory[i] !== null ? currentMemory[i] : '-'}</td>`;
                     }
-                    rowCells += cellContent;
-                    previousMemory[i] = currentPage;
+                    frameRows[i] += cellContent;
                 }
-                frameRows += `<tr><td>Frame ${i + 1}</td>${rowCells}</tr>`;
             }
-            visualFrames.innerHTML = frameRows;
+
+            let frameHtml = '';
+            for (let i = 0; i < frames; i++) {
+                frameHtml += `<tr><td>Frame ${i + 1}</td>${frameRows[i]}</tr>`;
+            }
+            visualFrames.innerHTML = frameHtml;
+
+            // Update Hit/Miss row
+            let hitMissCells = '<td class="hit-miss-row">Hit/Miss</td>';
+            for (let step = 0; step < simulationHistory.length; step++) {
+                const isHit = !simulationHistory[step].pageFault;
+                hitMissCells += `<td class="hit-miss-row ${isHit ? 'hit' : 'page-fault'}">${isHit ? 'H' : 'M'}</td>`;
+            }
+            hitMissRow.innerHTML = hitMissCells;
         }
 
         function simulateStepByStep(algorithm) {
             if (currentStep >= referenceString.length) {
-                document.getElementById('output').innerHTML = `<p>Simulation Complete! Total Page Faults: ${pageFaults}</p>`;
-                if (algorithm === 'optimal') {
-                    document.getElementById('output').innerHTML += `<p>Note: Optimal algorithm is used as a benchmark but is impractical as it requires future knowledge.</p>`;
-                }
+                updateOutputTable();
                 updateSummaryTable();
                 updateVisualTable();
+                if (algorithm === 'optimal') {
+                    const tbody = document.getElementById('outputTable').querySelector('tbody');
+                    tbody.insertAdjacentHTML('beforeend', '<tr><td colspan="3" style="font-style: italic;">Note: Optimal algorithm is used as a benchmark but is impractical as it requires future knowledge.</td></tr>');
+                }
                 return;
             }
 
@@ -700,8 +781,8 @@
                 pageFault: pageFault
             });
 
-            document.getElementById('output').innerHTML = `<p>Step ${currentStep + 1}: Page ${page} - ${pageFault ? 'Page Fault' : 'Hit'}</p>`;
             updateMemoryDisplay(pageFault, changedIndex);
+            updateOutputTable();
             updateSummaryTable();
             updateVisualTable();
 
