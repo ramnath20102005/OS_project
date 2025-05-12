@@ -4,471 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page Replacement Algorithm Visualization</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        :root {
-            --bg-gradient-start: #f0f4f8;
-            --bg-gradient-end: #d9e2ec;
-            --container-bg: #ffffff;
-            --text-color: #2c3e50;
-            --frame-bg: #ecf0f1;
-            --frame-border: #34495e;
-            --frame-active-bg: #dfe6e9;
-            --queue-bg: #dfe6e9;
-            --output-bg: #f9fbfc;
-            --output-border: #dfe6e9;
-            --table-bg: #fff;
-            --table-border: #dfe6e9;
-            --page-fault-bg: rgba(231, 76, 60, 0.1);
-            --hit-bg: rgba(46, 204, 113, 0.1);
-            --visual-table-th-bg: #3498db;
-            --visual-table-ref-bg: #f1c40f;
-            --visual-table-ref-text: #2c3e50;
-            --visual-table-td-bg: #ecf0f1;
-            --shadow-color: rgba(0, 0, 0, 0.1);
-            --shadow-hover: rgba(0, 0, 0, 0.2);
-            --glow-color: rgba(52, 152, 219, 0.5);
-        }
-
-        [data-theme="dark"] {
-            --bg-gradient-start: #1c2526;
-            --bg-gradient-end: #2c3e50;
-            --container-bg: #34495e;
-            --text-color: #ecf0f1;
-            --frame-bg: #2c3e50;
-            --frame-border: #ecf0f1;
-            --frame-active-bg: #455a64;
-            --queue-bg: #455a64;
-            --output-bg: #2c3e50;
-            --output-border: #455a64;
-            --table-bg: #34495e;
-            --table-border: #455a64;
-            --page-fault-bg: rgba(231, 76, 60, 0.3);
-            --hit-bg: rgba(46, 204, 113, 0.3);
-            --visual-table-th-bg: #2980b9;
-            --visual-table-ref-bg: #d4ac0d;
-            --visual-table-ref-text: #ecf0f1;
-            --visual-table-td-bg: #2c3e50;
-            --shadow-color: rgba(255, 255, 255, 0.1);
-            --shadow-hover: rgba(255, 255, 255, 0.2);
-            --glow-color: rgba(52, 152, 219, 0.7);
-        }
-
-        body {
-            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
-            min-height: 100vh;
-            padding: 30px;
-            position: relative;
-        }
-
-        .theme-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 10px;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .theme-toggle:hover {
-            background: rgba(0, 0, 0, 0.1);
-            box-shadow: 0 0 15px var(--glow-color);
-        }
-
-        .theme-toggle img {
-            width: 24px;
-            height: 24px;
-        }
-
-        .theme-toggle.light::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 40px;
-            height: 40px;
-            background: radial-gradient(circle, rgba(255, 204, 0, 0.3), transparent);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            animation: sunGlow 2s ease-in-out infinite;
-        }
-
-        @keyframes sunGlow {
-            0%, 100% {
-                opacity: 0.5;
-                transform: translate(-50%, -50%) scale(1);
-            }
-            50% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1.2);
-            }
-        }
-
-        .theme-toggle.dark::after {
-            content: '';
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            width: 6px;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 50%;
-            animation: moonStar 3s linear infinite;
-        }
-
-        @keyframes moonStar {
-            0% {
-                transform: translate(0, 0);
-                opacity: 0.8;
-            }
-            25% {
-                transform: translate(10px, -10px);
-                opacity: 0.4;
-            }
-            50% {
-                transform: translate(15px, 0);
-                opacity: 0.8;
-            }
-            75% {
-                transform: translate(10px, 10px);
-                opacity: 0.4;
-            }
-            100% {
-                transform: translate(0, 0);
-                opacity: 0.8;
-            }
-        }
-
-        h1 {
-            text-align: center;
-            color: var(--text-color);
-            margin-bottom: 30px;
-            font-size: 2.5em;
-            text-shadow: 1px 1px 2px var(--shadow-color);
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: var(--container-bg);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px var(--shadow-color);
-        }
-
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .controls label {
-            font-weight: 600;
-            color: var(--text-color);
-            margin-right: 10px;
-            align-self: center;
-        }
-
-        .controls select, .controls input {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 8px;
-            background: var(--frame-bg);
-            box-shadow: inset 0 2px 5px var(--shadow-color);
-            font-size: 1em;
-            color: var(--text-color);
-            transition: all 0.3s ease;
-        }
-
-        .controls select:focus, .controls input:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px var(--glow-color);
-        }
-
-        .controls select {
-            cursor: pointer;
-            appearance: none;
-            background: url('data:image/svg+xml;utf8,<svg fill="%2334495e" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center;
-            background-size: 20px;
-            padding-right: 40px;
-        }
-
-        .controls select:hover, .controls input:hover {
-            background: var(--frame-active-bg);
-            box-shadow: 0 0 10px var(--glow-color);
-        }
-
-        [data-theme="dark"] .controls select {
-            background: url('data:image/svg+xml;utf8,<svg fill="%23ecf0f1" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center;
-            background-size: 20px;
-        }
-
-        .controls button {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 8px;
-            background: linear-gradient(45deg, #3498db, #2980b9);
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
-        }
-
-        .controls button:hover {
-            background: linear-gradient(45deg, #2980b9, #1c638d);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px var(--glow-color);
-        }
-
-        .controls button:active {
-            transform: translateY(0);
-            box-shadow: 0 3px 10px rgba(52, 152, 219, 0.2);
-        }
-
-        .example-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-
-        .example-buttons button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            background: linear-gradient(45deg, #e74c3c, #c0392b);
-            color: white;
-            font-size: 0.9em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
-        }
-
-        .example-buttons button:hover {
-            background: linear-gradient(45deg, #c0392b, #a93226);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px var(--glow-color);
-        }
-
-        .example-buttons button:active {
-            transform: translateY(0);
-            box-shadow: 0 3px 10px rgba(231, 76, 60, 0.2);
-        }
-
-        .memory-frame {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin: 30px 0;
-        }
-
-        .frame {
-            width: 70px;
-            height: 70px;
-            border: 3px solid var(--frame-border);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.3em;
-            color: var(--text-color);
-            background: var(--frame-bg);
-            transition: all 0.5s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .frame.active {
-            box-shadow: 0 0 15px var(--glow-color);
-            background: var(--frame-active-bg);
-            transform: scale(1.1);
-        }
-
-        .frame.page-fault::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: rgba(231, 76, 60, 0.2);
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { opacity: 0.5; }
-        }
-
-        .queue-display {
-            margin: 15px 0;
-            text-align: center;
-            font-size: 1.1em;
-            color: var(--text-color);
-        }
-
-        .queue-display span {
-            margin: 0 8px;
-            padding: 5px 12px;
-            background: var(--queue-bg);
-            border-radius: 5px;
-            font-weight: 500;
-        }
-
-        .output-table-container {
-            margin-top: 20px;
-            overflow-x: auto;
-        }
-
-        .output-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: var(--output-bg);
-            border: 1px solid var(--output-border);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .output-table th, .output-table td {
-            border: 1px solid var(--output-border);
-            padding: 12px;
-            text-align: center;
-            font-size: 0.95em;
-            color: var(--text-color);
-        }
-
-        .output-table th {
-            background: linear-gradient(45deg, #3498db, #2980b9);
-            color: white;
-            font-weight: 600;
-        }
-
-        .output-table tr.fade-in {
-            animation: fadeIn 0.5s ease forwards;
-        }
-
-        .table-container, .visual-table-container {
-            margin-top: 30px;
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-            background: var(--table-bg);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        th, td {
-            border: 1px solid var(--table-border);
-            padding: 12px;
-            text-align: center;
-            font-size: 0.95em;
-        }
-
-        th {
-            background: linear-gradient(45deg, #2ecc71, #27ae60);
-            color: white;
-            font-weight: 600;
-        }
-
-        td {
-            color: var(--text-color);
-        }
-
-        tr {
-            transition: opacity 0.5s ease;
-        }
-
-        tr.fade-in {
-            animation: fadeIn 0.5s ease forwards;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .page-fault {
-            background: var(--page-fault-bg);
-        }
-
-        .hit {
-            background: var(--hit-bg);
-        }
-
-        .visual-table th {
-            background: var(--visual-table-th-bg);
-        }
-
-        .visual-table td {
-            border: 2px solid var(--table-border);
-            background: var(--visual-table-td-bg);
-            font-weight: 500;
-            min-width: 50px;
-        }
-
-        .visual-table .reference-string {
-            background: var(--visual-table-ref-bg);
-            font-weight: 600;
-            color: var(--visual-table-ref-text);
-        }
-
-        .visual-table .hit-cell {
-            background: transparent;
-        }
-
-        .visual-table .hit-miss-row {
-            background: var(--queue-bg);
-            font-weight: 600;
-        }
-
-        .loading {
-            text-align: center;
-            font-style: italic;
-            color: #7f8c8d;
-            margin: 20px 0;
-        }
-
-        .loading::after {
-            content: '';
-            display: inline-block;
-            width: 5px;
-            height: 5px;
-            background: #3498db;
-            border-radius: 50%;
-            animation: dots 1.5s infinite;
-            margin-left: 5px;
-        }
-
-        @keyframes dots {
-            0% { transform: translateX(0); }
-            33% { transform: translateX(5px); }
-            66% { transform: translateX(-5px); }
-            100% { transform: translateX(0); }
-        }
-    </style>
+    <link rel="stylesheet" href="index.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body data-theme="light">
     <button class="theme-toggle light" id="themeToggle" onclick="toggleTheme()">
-        <img id="themeIcon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0iIzJjM2U1MCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgNC41YTYgNiAwIDEgMCA2IDYgNiA2IDAgMCAwLTYtNk0xMi4wMyAyYTEuOTcgMS45NyAwIDAgMC0yIDIgMS45NyAxLjk3IDAgMCAwIDIgMiAxLjk3IDEuOTcgMCAwIDAgMi0yIDEuOTcgMS45NyAwIDAgMC0yLTJaTTEyIDBhMSAxIDAgMCAwLTEgMXYyYTEgMSAwIDAgMCA1IDFIMTQuMDNhMSAxIDAgMCAwIDEtMXYyYTEgMSAwIDAgMCA1IDFIMTYuMDNhMSAxIDAgMCAwIDEtMXYyYTEgMSAwIDAgMCAxIDFINy41YTEgMSAwIDAgMC0xIDF2Mi4wM2ExIDEgMCAwIDAtMSAxSDkuMDNhMSAxIDAgMCAwIDEtMXYyLjAzYTEgMSAwIDAgMC0xIDFINy41YTEgMSAwIDAgMC0xIDF2Mi4wM2ExIDEgMCAwIDAtMSAxSDQuMDNhMSAxIDAgMCAwLTEtMVYyM2ExIDEgMCAwIDAgMS0xSDIuMDNhMSAxIDAgMCAwLTEtMXYtMi4wM2ExIDEgMCAwIDAgMS0xSDQuMDNhMSAxIDAgMCAwIDEtMVYxNi4wM2ExIDEgMCAwIDAtMS0xSDIuMDNhMSAxIDAgMCAwLTEtMXYtMi4wM2ExIDEgMCAwIDAgMS0xSDQuMDNhMSAxIDAgMCAwIDEtMVY5LjAzYTEgMSAwIDAgMC0xLTFIMi4wM2ExIDEgMCAwIDAtMS0xVjQuMDNhMSAxIDAgMCAwIDEtMUgyLjAzYTEgMSAwIDAgMC0xLTFWMS4wM2ExIDEgMCAwIDAgMS0xSDQuMDNhMSAxIDAgMCAwIDEtMVYxLjAzWiIvPjwvc3ZnPg==" alt="Toggle Theme">
+        <img id="themeIcon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0iIzJjM2U1MCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMTJhNiA2IDAgMSAwIDAtMTIgNiA2IDAgMCAwIDAgMTJabTAtMi41YTMuNSAzLjUgMCAxIDEtMy41LTMuNSAzLjUgMy41IDAgMCAxIDMuNSAzLjVAbTAtMTUuNWExIDEgMCAwIDAgMCAydjFhMSAxIDAgMCAwIDIgMGExIDEgMCAwIDAgMC0ydi0xYTEgMSAwIDAgMC0yIDBabTAgMTguNWExIDEgMCAwIDAgMCAydjFhMSAxIDAgMCAwIDIgMGExIDEgMCAwIDAgMC0ydi0xYTEgMSAwIDAgMC0yIDBabS0xMC41LTYuNWExIDEgMCAwIDAtMSAxSDBhMSAxIDAgMCAwIDAgMmgxYTEgMSAwIDAgMCA1LTEgMSAxIDAgMCAwIDAtMmgxYTEgMSAwIDAgMC0xIDFabTE5IDBhMSAxIDAgMCAwIDEtMUgyM2ExIDEgMCAwIDAgMC0yaC0xYTEgMSAwIDAgMC0xIDFoM2ExIDEgMCAwIDAgMC0yem0tMTYuOTQtMi4yOGExIDEgMCAwIDAtMS40MSAxLjQxbC43MDcuNzA3YTEgMSAwIDAgMCAxLjQxLTEuNDEzbC0uNzA3LS43MDdhMSAxIDAgMCAwIDAtLjAwM3ptMTQuMTQtMTQuMTVhMSAxIDAgMCAwLTEuNDEgMS40MWwuNzA3LjcwN2ExIDEgMCAwIDAgMS40MS0xLjQxTDkuMDI4IDMuMDI4YTEgMSAwIDAgMC0uMDAzIDB6bTEuNDEgMTYuOTZhMSAxIDAgMCAwIDEuNDEtMS40MWwtLjcwNy0uNzA3YTEgMSAwIDAgMC0xLjQxIDEuNDEzbC43MDcuNzA3YTEgMSAwIDAgMCAuMDAzIDB6bS0xNC4xNCAxNC4xNWExIDEgMCAwIDAgMS40MSAxLjQxbC0uNzA3LjcwN2ExIDEgMCAwIDAtMS40MS0xLjQxbC43MDctLjcwN2ExIDEgMCAwIDAgMC0uMDAzeiIvPjwvc3ZnPg==" alt="Toggle Theme">
     </button>
     <h1>Page Replacement Algorithm Visualization</h1>
     <div class="container">
@@ -500,32 +41,8 @@
         </div>
         <div class="memory-frame" id="memoryFrame"></div>
         <div class="queue-display" id="fifoQueue">FIFO Queue: </div>
-        <div class="output-table-container">
-            <table class="output-table" id="outputTable">
-                <thead>
-                    <tr>
-                        <th>Reference String</th>
-                        <th>Hit/Miss</th>
-                        <th>Page Faults</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-        <div class="table-container">
-            <table id="summaryTable">
-                <thead>
-                    <tr>
-                        <th>Step</th>
-                        <th>Page</th>
-                        <th>Memory State</th>
-                        <th>Page Fault</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-        <div class="visual-table-container">
+        <div class="fault-stats" id="faultStats"></div>
+        <div class="visual-table-container_loaded">
             <table id="visualTable" class="visual-table">
                 <thead>
                     <tr id="visualReference"></tr>
@@ -556,11 +73,11 @@
             if (newTheme === 'dark') {
                 themeToggle.classList.remove('light');
                 themeToggle.classList.add('dark');
-                themeIcon.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0iI2VjZjBmMSIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMjJhMTAgMTAgMCAxIDAtMTAtMTAgOC41IDguNSAwIDAgMCA4LjUgOC41YzEuMzMgMCAyLjU1LS4zIDMuNjQtLjg0YTMuMjMgMy4yMyAwIDAgMSAuODQtMy42NEE4LjUgOC41IDAgMCAwIDEyIDIyWk0xMiA0LjVhNiA2IDAgMCAxIDYgNiA2IDYgMCAwIDEtLjIzIDEuNDlhMi4yNyAyLjI3IDAgMCAwLS42OCAxLjY2Yy0uNTguNDktMS4zMS44NC0yLjA5Ljg0cy0xLjUtLjM1LTIuMDktLjg0YTIuMjcgMi4yNyAwIDAgMC0xLjY2LS42OEE2IDYgMCAwIDAgMTIgNC41WiIvPjwvc3ZnPg==';
+                themeIcon.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0iI2VjZjBmMSIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTUuMDMgMy4zMWMtLjA5LS4wMy0uMTktLjA1LS4yOC0uMDUtMy44OCAwLTcuMDMgMy4xNC03LjAzIDcgMCAzLjYxIDIuNzQuNjYuNiA3LjA2IDMuNDkuMDMgNi42My0yLjU5IDYuOTctNi40Mi41NC0uMDkuOTgtLjA2IDEuNDguMDNhOCAxMCAwIDAgMC0uMjItMTYuNzR6bTQuMTMgMTYuOTVhMSAxIDAgMCAwIDEuNDItLjAxIDEgMSAwIDAgMC0uMDEtMS40MmwtLjUtLjQ5YTEgMSAwIDAgMC0xLjQxLjAxIDEgMSAwIDAgMCAuMDEgMS40MmwuNDkuNXptLTMuMzctMi41YTEgMSAwIDAgMC0xLjQyLjAxIDEgMSAwIDAgMCAuMDEgMS40MmwuNS40OWExIDEgMCAwIDAgMS40MS0uMDEgMSAxIDAgMCAwLS4wMS0xLjQybC0uNDktLjV6bS01LjY0IDIuNDhhMSAxIDAgMCAwLTEuNDIuMDEgMSAxIDAgMCAwIC4wMSAxLjQybC41LjQ5YTEgMSAwIDAgMCA1LjQxLS4wMSAxIDEgMCAwIDAtLjAxLTEuNDJsLS40OS0uNXoiLz48L3N2Zz4=';
             } else {
                 themeToggle.classList.remove('dark');
                 themeToggle.classList.add('light');
-                themeIcon.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0iIzJjM2U1MCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgNC41YTYgNiAwIDEgMCA2IDYgNiA2IDAgMCAwLTYtNk0xMi4wMyAyYTEuOTcgMS45NyAwIDAgMC0yIDIgMS45NyAxLjk3IDAgMCAwIDIgMiAxLjk3IDEuOTcgMCAwIDAgMi0yIDEuOTcgMS45NyAwIDAgMC0yLTJaTTEyIDBhMSAxIDAgMCAwLTEgMXYyYTEgMSAwIDAgMCA1IDFIMTQuMDNhMSAxIDAgMCAwIDEtMXYyYTEgMSAwIDAgMCA1IDFIMTYuMDNhMSAxIDAgMCAwIDEtMXYyYTEgMSAwIDAgMCAxIDFINy41YTEgMSAwIDAgMC0xIDF2Mi4wM2ExIDEgMCAwIDAtMSAxSDkuMDNhMSAxIDAgMCAwIDEtMXYyLjAzYTEgMSAwIDAgMC0xIDFINy41YTEgMSAwIDAgMC0xIDF2Mi4wM2ExIDEgMCAwIDAtMSAxSDQuMDNhMSAxIDAgMCAwLTEtMVYyM2ExIDEgMCAwIDAgMS0xSDIuMDNhMSAxIDAgMCAwLTEtMXYtMi4wM2ExIDEgMCAwIDAgMS0xSDQuMDNhMSAxIDAgMCAwIDEtMVYxNi4wM2ExIDEgMCAwIDAtMS0xSDIuMDNhMSAxIDAgMCAwLTEtMXYtMi4wM2ExIDEgMCAwIDAgMS0xSDQuMDNhMSAxIDAgMCAwIDEtMVY5LjAzYTEgMSAwIDAgMC0xLTFIMi4wM2ExIDEgMCAwIDAtMS0xVjQuMDNhMSAxIDAgMCAwIDEtMUgyLjAzYTEgMSAwIDAgMC0xLTFWMS4wM2ExIDEgMCAwIDAgMS0xSDQuMDNhMSAxIDAgMCAwIDEtMVYxLjAzWiIvPjwvc3ZnPg==';
+                themeIcon.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0iIzJjM2U1MCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMTJhNiA2IDAgMSAwIDAtMTIgNiA2IDAgMCAwIDAgMTJabTAtMi41YTMuNSAzLjUgMCAxIDEtMy41LTMuNSAzLjUgMy41IDAgMCAxIDMuNSAzLjVAbTAtMTUuNWExIDEgMCAwIDAgMCAydjFhMSAxIDAgMCAwIDIgMGExIDEgMCAwIDAgMC0ydi0xYTEgMSAwIDAgMC0yIDBabTAgMTguNWExIDEgMCAwIDAgMCAydjFhMSAxIDAgMCAwIDIgMGExIDEgMCAwIDAgMC0ydi0xYTEgMSAwIDAgMC0yIDBabS0xMC41LTYuNWExIDEgMCAwIDAtMSAxSDBhMSAxIDAgMCAwIDAgMmgxYTEgMSAwIDAgMCA1LTEgMSAxIDAgMCAwIDAtMmgxYTEgMSAwIDAgMC0xIDFabTE5IDBhMSAxIDAgMCAwIDEtMUgyM2ExIDEgMCAwIDAgMC0yaC0xYTEgMSAwIDAgMC0xIDFoM2ExIDEgMCAwIDAgMC0yem0tMTYuOTQtMi4yOGExIDEgMCAwIDAtMS40MSAxLjQxbC43MDcuNzA3YTEgMSAwIDAgMCAxLjQxLTEuNDEzbC0uNzA3LS43MDdhMSAxIDAgMCAwIDAtLjAwM3ptMTQuMTQtMTQuMTVhMSAxIDAgMCAwLTEuNDEgMS40MWwuNzA3LjcwN2ExIDEgMCAwIDAgMS40MS0xLjQxTDkuMDI4IDMuMDI4YTEgMSAwIDAgMC0uMDAzIDB6bTEuNDEgMTYuOTZhMSAxIDAgMCAwIDEuNDEtMS40MWwtLjcwNy0uNzA3YTEgMSAwIDAgMC0xLjQxIDEuNDEzbC43MDcuNzA3YTEgMSAwIDAgMCAuMDAzIDB6bS0xNC4xNCAxNC4xNWExIDEgMCAwIDAgMS40MSAxLjQxbC0uNzA3LjcwN2ExIDEgMCAwIDAtMS40MS0xLjQxbC43MDctLjcwN2ExIDEgMCAwIDAgMC0uMDAzeiIvPjwvc3ZnPg==';
             }
         }
 
@@ -599,9 +116,8 @@
             simulationHistory = [];
             fifoQueue = [];
             lruTimestamps = new Array(frames).fill(0);
-            document.getElementById('outputTable').querySelector('tbody').innerHTML = '<tr><td colspan="3" class="loading">Starting simulation...</td></tr>';
             document.getElementById('fifoQueue').innerHTML = 'FIFO Queue: ';
-            document.getElementById('summaryTable').querySelector('tbody').innerHTML = '';
+            document.getElementById('faultStats').innerHTML = 'Page Faults: 0';
             document.getElementById('visualReference').innerHTML = '';
             document.getElementById('visualFrames').innerHTML = '';
             document.getElementById('hitMissRow').innerHTML = '';
@@ -624,55 +140,14 @@
             }
         }
 
-        function updateOutputTable() {
-            const tbody = document.getElementById('outputTable').querySelector('tbody');
-            const newRow = simulationHistory[simulationHistory.length - 1];
-            if (newRow) {
-                const rowHtml = `
-                    <tr class="${newRow.pageFault ? 'page-fault' : 'hit'} fade-in">
-                        <td>${newRow.page}</td>
-                        <td>${newRow.pageFault ? 'Miss' : 'Hit'}</td>
-                        <td>${pageFaults}</td>
-                    </tr>
-                `;
-                tbody.innerHTML = '';
-                simulationHistory.forEach(step => {
-                    const stepHtml = `
-                        <tr class="${step.pageFault ? 'page-fault' : 'hit'} fade-in">
-                            <td>${step.page}</td>
-                            <td>${step.pageFault ? 'Miss' : 'Hit'}</td>
-                            <td>${pageFaults}</td>
-                        </tr>
-                    `;
-                    tbody.insertAdjacentHTML('beforeend', stepHtml);
-                });
-            }
-            if (simulationHistory.length > 0 && currentStep >= referenceString.length) {
+        function updateFaultStats() {
+            const faultStats = document.getElementById('faultStats');
+            if (currentStep > 0) {
                 const totalSteps = simulationHistory.length;
                 const faultRate = (pageFaults / totalSteps * 100).toFixed(2);
-                const finalRow = `
-                    <tr class="fade-in">
-                        <td colspan="2"><strong>Total Page Fault Rate</strong></td>
-                        <td>${pageFaults}/${totalSteps} = ${faultRate}%</td>
-                    </tr>
-                `;
-                tbody.insertAdjacentHTML('beforeend', finalRow);
-            }
-        }
-
-        function updateSummaryTable() {
-            const tbody = document.getElementById('summaryTable').querySelector('tbody');
-            const newRow = simulationHistory[simulationHistory.length - 1];
-            if (newRow) {
-                const rowHtml = `
-                    <tr class="${newRow.pageFault ? 'page-fault' : 'hit'} fade-in">
-                        <td>${newRow.step}</td>
-                        <td>${newRow.page}</td>
-                        <td>${newRow.memory.map(p => p !== null ? p : '-').join(' | ')}</td>
-                        <td>${newRow.pageFault ? 'Page Fault' : 'Hit'}</td>
-                    </tr>
-                `;
-                tbody.insertAdjacentHTML('beforeend', rowHtml);
+                faultStats.innerHTML = `Page Faults: ${pageFaults} | Page Fault Rate: ${pageFaults}/${totalSteps} = ${faultRate}%`;
+            } else {
+                faultStats.innerHTML = `Page Faults: ${pageFaults}`;
             }
         }
 
@@ -722,12 +197,11 @@
 
         function simulateStepByStep(algorithm) {
             if (currentStep >= referenceString.length) {
-                updateOutputTable();
-                updateSummaryTable();
+                updateFaultStats();
                 updateVisualTable();
                 if (algorithm === 'optimal') {
-                    const tbody = document.getElementById('outputTable').querySelector('tbody');
-                    tbody.insertAdjacentHTML('beforeend', '<tr><td colspan="3" style="font-style: italic;">Note: Optimal algorithm is used as a benchmark but is impractical as it requires future knowledge.</td></tr>');
+                    const faultStats = document.getElementById('faultStats');
+                    faultStats.insertAdjacentHTML('afterend', '<div style="text-align: center; font-style: italic; font-size: 0.85em; color: var(--text-color);">Note: Optimal algorithm is used as a benchmark but is impractical as it requires future knowledge.</div>');
                 }
                 return;
             }
@@ -782,8 +256,7 @@
             });
 
             updateMemoryDisplay(pageFault, changedIndex);
-            updateOutputTable();
-            updateSummaryTable();
+            updateFaultStats();
             updateVisualTable();
 
             currentStep++;
